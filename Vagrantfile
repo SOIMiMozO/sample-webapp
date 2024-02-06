@@ -19,6 +19,13 @@ Vagrant.configure("2") do |config|
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
   userstation.vm.box_check_update = true
+  userstation.vm.provision "file", source: "userstation.pub", destination: "~/.ssh/userstation.pub"
+  userstation.vm.provision "shell", inline: <<-SHELL
+    cat /home/vagrant/.ssh/userstation.pub >> /home/vagrant/.ssh/authorized_keys
+  SHELL
+  userstation.vm.provision "ansible" do |ansible|
+    ansible.verbose = "v"
+    ansible.playbook = "userstation.yml"
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -80,12 +87,20 @@ Vagrant.configure("2") do |config|
   config.vm.define "webapp" do |webapp|
     webapp.vm.box = "ubuntu/trusty64"
 	webapp.vm.box_check_update = true
+	webapp.vm.provision "file", source: "webapp.pub", destination: "~/.ssh/webapp.pub"
+	webapp.vm.provision "shell", inline: <<-SHELL
+    cat /home/vagrant/.ssh/webapp.pub >> /home/vagrant/.ssh/authorized_keys
+	SHELL
 	webapp.vm.network "forwarded_port", guest: 80, host: 8081, host_ip: "127.0.0.1"
   end
   
   config.vm.define "db" do |db|
     db.vm.box = "centos/7"
 	db.vm.box_check_update = true
+	db.vm.provision "file", source: "db.pub", destination: "~/.ssh/db.pub"
+	db.vm.provision "shell", inline: <<-SHELL
+    cat /home/vagrant/.ssh/db.pub >> /home/vagrant/.ssh/authorized_keys
+	SHELL
 	db.vm.network "forwarded_port", guest: 80, host: 8082, host_ip: "127.0.0.1"
   end
 end
