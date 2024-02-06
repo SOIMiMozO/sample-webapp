@@ -1,0 +1,15 @@
+---
+- name: Install soft
+  hosts: userstations
+  remote_user: vagrant
+
+  tasks:
+  - name: Ensure tmux is latest version
+    ansible.builtin.yum:
+      name: tmux
+      state: latest
+
+  - name: Write the test file
+    ansible.builtin.template:
+      src: /copytest.txt
+      dest: ~/
